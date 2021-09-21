@@ -69,9 +69,9 @@ contract("KateToken", (accounts) => {
 
             const kateToken = await deploy(accounts);
            
-            let balance = await kateToken.balanceOf(accounts[0]);
-            balance = fromWei(balance);
+            let balance = fromWei(await kateToken.balanceOf(accounts[0]));
             console.log('owner balance', balance);
+
             assert.equal(balance, 1000000, 'Balances not equal, exact 1M tokens have not been trasfered to owner');
         });
 
@@ -83,12 +83,11 @@ contract("KateToken", (accounts) => {
             console.log('accountsArrray.length: ', accountsArray.length);
 
             for(let i=1; i<accountsArray.length; i++) {
+
                 console.log(`${i}, ${accountsArray[i][0]}, ${accountsArray[i][1]} `);
-                
-                let balance = await kateToken.balanceOf(accountsArray[i][1]);
-                balance = fromWei(balance);
-          
+                let balance = fromWei(await kateToken.balanceOf(accountsArray[i][1]));
                 console.log(`${accountsArray[i][0]}: ${accountsArray[i][1]} balance`, balance);
+
                 assert.equal(balance, 0, `Balance of account ${accountsArray[i][0]}:${accountsArray[i][1]} not zero`);
             };
         });
@@ -101,9 +100,9 @@ contract("KateToken", (accounts) => {
             // console.log('accountsArrray.length: ', accountsArray.length);
 
             for(let i=0; i<accountsArray.length; i++) {
-                let allowance = await kateToken.allowance(accountsArray[i][1], kateToken.address);
-                allowance = fromWei(allowance);
+                let allowance = fromWei(await kateToken.allowance(accountsArray[i][1], kateToken.address));
                 console.log(`${accountsArray[i][0]}: ${accountsArray[i][1]} allowance:`, allowance);
+
                 assert.equal(allowance, 0, `Allowance of account ${accountsArray[i][1]} not zero`)
             };
         });
@@ -118,8 +117,7 @@ contract("KateToken", (accounts) => {
             for(let i=0; i<accountsArray.length; i++) {
                 for (let j=0; j<accountsArray.length; j++) {
                   
-                  let allowance = await kateToken.allowance(accountsArray[i][1], accountsArray[j][1]);
-                  allowance = fromWei(allowance);     
+                  let allowance = fromWei(await kateToken.allowance(accountsArray[i][1], accountsArray[j][1]));     
           
                 //   console.log(`${accountsArray[i][1]} allowance to ${accountsArray[j][1]}`, allowance);
                   assert.equal(allowance, 0, `Allowance of account ${accountsArray[i][1]} not zero`);
@@ -136,8 +134,7 @@ contract("KateToken", (accounts) => {
             const accountsArray = Object.entries(accounts);
 
             let tokenTransfered = 0;
-            let ownerBalanceBefore = await kateToken.balanceOf(accounts[0]);
-            ownerBalanceBefore = fromWei(ownerBalanceBefore);
+            let ownerBalanceBefore = fromWei(await kateToken.balanceOf(accounts[0]));
             console.log(`Owner's balance BEFORE the transfers is:`, ownerBalanceBefore);
 
             for(let i=1; i<accountsArray.length; i++) {
@@ -146,19 +143,18 @@ contract("KateToken", (accounts) => {
           
                 await kateToken.transfer(accountsArray[i][1], amount, {from: accountsArray[0][1]})
           
-                let accountBalance = await kateToken.balanceOf(accountsArray[i][1]);
-                accountBalance = fromWei(accountBalance);
+                let accountBalance = fromWei(await kateToken.balanceOf(accountsArray[i][1]));
                 console.log(`${accountsArray[i][1]}:`, typeof(accountBalance), accountBalance);
           
                 // console.log('accountBalance', typeof(accountBalance), accountBalance)
+                // convert tokenTransfered from string to number in order to make calculations
                 tokenTransfered += parseInt(accountBalance);
                 console.log('tokenTransfered until now:', tokenTransfered);
           
                 assert.equal(accountBalance, 1000, `${accountsArray[i][1]} balance is not 1k, as expected`);
             };
 
-            let ownerBalanceAfter = await kateToken.balanceOf(accounts[0]);
-            ownerBalanceAfter = fromWei(ownerBalanceAfter);
+            let ownerBalanceAfter = fromWei(await kateToken.balanceOf(accounts[0]));
             console.log(`Owner's balance AFTER the transfers is:`, ownerBalanceAfter);
 
             const ownerBalanceExpected = ownerBalanceBefore - tokenTransfered;
@@ -187,34 +183,27 @@ contract("KateToken", (accounts) => {
             const kateToken = await deploy(accounts);
 
             // make a trasfer from owner to account[1] to have some funds
-            let ownerBalanceBefore = await kateToken.balanceOf(accounts[0]);
-            ownerBalanceBefore = fromWei(ownerBalanceBefore);
+            let ownerBalanceBefore = fromWei(await kateToken.balanceOf(accounts[0]));
             console.log(`Owner's balance BEFORE the transfer is:`, ownerBalanceBefore);
 
-            let amount = toWei('1000');
-
-            await kateToken.transfer(accounts[1], amount, {from: accounts[0]})
-            let accountBalance = await kateToken.balanceOf(accounts[1]);
-            accountBalance = fromWei(accountBalance);
+            await kateToken.transfer(accounts[1], toWei('1000'), {from: accounts[0]})
+            let accountBalance = fromWei(await kateToken.balanceOf(accounts[1]));
             console.log(`${accounts[1]} balance is`, accountBalance);
 
-            let ownerBalanceAfter = await kateToken.balanceOf(accounts[0]);
-            ownerBalanceAfter = fromWei(ownerBalanceAfter);
+            let ownerBalanceAfter = fromWei(await kateToken.balanceOf(accounts[0]));
             console.log(`Owner's balance AFTER the transfers is:`, ownerBalanceAfter);
-
-            amount = parseInt(fromWei(amount));
 
             // make a trasfer from account[1] to account[2] with more funds than is has
             await assertErrors(kateToken.transfer(accounts[2], toWei('2000'), { from: accounts[1] }), 'ERC20: transfer amount exceeds balance');
 
             // check the owner's balance after the transfer
-            assert.equal(ownerBalanceAfter, ownerBalanceBefore-amount, `owner's balance is not the tokens before minus the tokens trasfered, as expected`);
+            assert.equal(ownerBalanceAfter, ownerBalanceBefore-1000, `owner's balance is not the tokens before minus the tokens trasfered, as expected`);
         });
     });
 
     describe("Approvals/Allowance", () => {
 
-        it("all accounts should be able to aproove allowance to account0", async () => {
+        it("all accounts should be able to approve allowance to account0", async () => {
 
             const kateToken = await deploy(accounts);
             const accountsArray = Object.entries(accounts);
@@ -225,7 +214,6 @@ contract("KateToken", (accounts) => {
 
                 // approve 50 tokens FROM each account TO owner
                 let approvalToOwner = await kateToken.approve(accounts[0], toWei('50'), {from: accountsArray[i][1]});
-
                 let allowanceToOwner = fromWei(await kateToken.allowance(accountsArray[i][1], accountsArray[0][1]))
                 
                 console.log(`status:`, approvalToOwner.receipt.status);
@@ -238,7 +226,7 @@ contract("KateToken", (accounts) => {
             };
         });
 
-        // it("should NOT be able to aproove any allowance FROM address(0)", async () => {
+        // it("should NOT be able to approve any allowance FROM address(0)", async () => {
 
         //     // καθυστερεί επίσης πολύ. Δεν εκτελείται η approve, no error msg
         //     const kateToken = await deploy(accounts);
@@ -247,13 +235,13 @@ contract("KateToken", (accounts) => {
         //     'ERC20: approve from the zero address');  
         // })
 
-        it("should NOT be able to aproove any allowance TO address(0)", async () => {
+        it("should NOT be able to approve any allowance TO address(0)", async () => {
 
             const kateToken = await deploy(accounts);
             await assertErrors(kateToken.approve(UNSET_ADDRESS, toWei('1000'), { from: accounts[0] }), 'ERC20: approve to the zero address');     
         });
 
-        it("account1 should NOT be able to aproove more allowance than available balance to account2", async () => {
+        it("account1 should NOT be able to approve more allowance than available balance to account2", async () => {
 
             const kateToken = await deploy(accounts);
             
@@ -274,6 +262,7 @@ contract("KateToken", (accounts) => {
         });
 
         it("account2 should be able to trasferFROM account1 as much as available allowance", async () => {
+
             const kateToken = await deploy(accounts);
             
             // transfer 1000 tokens to account1 FROM owner     
@@ -325,7 +314,6 @@ contract("KateToken", (accounts) => {
 
             // approve 50 tokens FROM account1 TO account2
             let approvalToAccount = await kateToken.approve(accounts[2], toWei('50'), {from: accounts[1]});
-
             let allowanceToAccount = fromWei(await kateToken.allowance(accounts[1], accounts[2]))
             
             console.log(`status:`, approvalToAccount.receipt.status);
