@@ -4,9 +4,6 @@ pragma solidity 0.8.7;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 
-import './shared/ProtocolConstants.sol';
-
-
 contract KateToken is IERC20, Ownable {
 
     mapping (address => uint256) private _balances;
