@@ -1,0 +1,273 @@
+{
+  "contractName": "ProtocolConstants",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.7+commit.e28d00a7\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/shared/ProtocolConstants.sol\":\"ProtocolConstants\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/shared/ProtocolConstants.sol\":{\"keccak256\":\"0x7f1ce48d242e4ac9ceb25bee4cf4677eb917367b418287e9f012446aa01cad0e\",\"license\":\"Unlicense\",\"urls\":[\"bzz-raw://7cdfc6ab493a4bae52b313799c24dd4ced0eb35d80e41b563c2d9a6a068d2cbc\",\"dweb:/ipfs/Qmc1ATg74hKXnC5fSQbhNhyWM94yY6zHt6QGcND9akkLre\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220b741b7b8da930b35a2488de95cfb4209ba4650ea3c67be3548e1a0444dc65aec64736f6c63430008070033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220b741b7b8da930b35a2488de95cfb4209ba4650ea3c67be3548e1a0444dc65aec64736f6c63430008070033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "63:181:4:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "63:181:4:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: Unlicense\n\npragma solidity 0.8.7;\n\ncontract ProtocolConstants {\n    /* ========== CONSTANTS ========== */\n\n    // Max KateToken supply\n    uint256 internal constant _INITIAL_KATETOKEN_SUPPLY = 1_000_000 * 1 ether;\n\n}",
+  "sourcePath": "/home/katerith/Projects/Blockchain/Dev/erc20/contracts/shared/ProtocolConstants.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/shared/ProtocolConstants.sol",
+    "exportedSymbols": {
+      "ProtocolConstants": [
+        675
+      ]
+    },
+    "id": 676,
+    "license": "Unlicense",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 669,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".7"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:22:4"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 675,
+        "linearizedBaseContracts": [
+          675
+        ],
+        "name": "ProtocolConstants",
+        "nameLocation": "72:17:4",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": true,
+            "id": 674,
+            "mutability": "constant",
+            "name": "_INITIAL_KATETOKEN_SUPPLY",
+            "nameLocation": "193:25:4",
+            "nodeType": "VariableDeclaration",
+            "scope": 675,
+            "src": "167:73:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 670,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "167:7:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": {
+              "commonType": {
+                "typeIdentifier": "t_rational_1000000000000000000000000_by_1",
+                "typeString": "int_const 1000000000000000000000000"
+              },
+              "id": 673,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "lValueRequested": false,
+              "leftExpression": {
+                "hexValue": "315f3030305f303030",
+                "id": 671,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "221:9:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1000000_by_1",
+                  "typeString": "int_const 1000000"
+                },
+                "value": "1_000_000"
+              },
+              "nodeType": "BinaryOperation",
+              "operator": "*",
+              "rightExpression": {
+                "hexValue": "31",
+                "id": 672,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "233:7:4",
+                "subdenomination": "ether",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1000000000000000000_by_1",
+                  "typeString": "int_const 1000000000000000000"
+                },
+                "value": "1"
+              },
+              "src": "221:19:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1000000000000000000000000_by_1",
+                "typeString": "int_const 1000000000000000000000000"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "scope": 676,
+        "src": "63:181:4",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:205:4"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/shared/ProtocolConstants.sol",
+    "exportedSymbols": {
+      "ProtocolConstants": [
+        675
+      ]
+    },
+    "id": 676,
+    "license": "Unlicense",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 669,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".7"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:22:4"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 675,
+        "linearizedBaseContracts": [
+          675
+        ],
+        "name": "ProtocolConstants",
+        "nameLocation": "72:17:4",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": true,
+            "id": 674,
+            "mutability": "constant",
+            "name": "_INITIAL_KATETOKEN_SUPPLY",
+            "nameLocation": "193:25:4",
+            "nodeType": "VariableDeclaration",
+            "scope": 675,
+            "src": "167:73:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 670,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "167:7:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "value": {
+              "commonType": {
+                "typeIdentifier": "t_rational_1000000000000000000000000_by_1",
+                "typeString": "int_const 1000000000000000000000000"
+              },
+              "id": 673,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "lValueRequested": false,
+              "leftExpression": {
+                "hexValue": "315f3030305f303030",
+                "id": 671,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "221:9:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1000000_by_1",
+                  "typeString": "int_const 1000000"
+                },
+                "value": "1_000_000"
+              },
+              "nodeType": "BinaryOperation",
+              "operator": "*",
+              "rightExpression": {
+                "hexValue": "31",
+                "id": 672,
+                "isConstant": false,
+                "isLValue": false,
+                "isPure": true,
+                "kind": "number",
+                "lValueRequested": false,
+                "nodeType": "Literal",
+                "src": "233:7:4",
+                "subdenomination": "ether",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_rational_1000000000000000000_by_1",
+                  "typeString": "int_const 1000000000000000000"
+                },
+                "value": "1"
+              },
+              "src": "221:19:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_1000000000000000000000000_by_1",
+                "typeString": "int_const 1000000000000000000000000"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "scope": 676,
+        "src": "63:181:4",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:205:4"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.7+commit.e28d00a7.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.3",
+  "updatedAt": "2021-09-20T17:39:05.964Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
