@@ -3,8 +3,11 @@ pragma solidity 0.8.7;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/security/Pausable.sol';
+import './Freezable.sol';
 
-contract KateToken is IERC20, Ownable {
+
+contract KateToken is IERC20, Ownable, Pausable, Freezable {
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -128,5 +131,13 @@ contract KateToken is IERC20, Ownable {
         _allowances[owner_][spender] = amount;
 
         emit Approval(owner_, spender, amount);
+    }
+
+    function mockPause() public onlyOwner {
+        _pause();
+    }
+
+    function mockUnpause() public onlyOwner {
+        _unpause();
     }
 }

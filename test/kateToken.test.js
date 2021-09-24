@@ -42,27 +42,22 @@ contract("KateToken", (accounts) => {
 
         it("should match name/symbol/totalSupply/decimals/owner succesfully", async () => {
            
-            const kateToken = await deploy(accounts);  
+            const kateToken = await deploy(accounts);
+            
+            console.log('methods', kateToken.methods)
     
             assert.equal(await kateToken.name(), "KateToken");
             assert.equal(await kateToken.symbol(), "KTN");
             assertBn(await kateToken.decimals(), 18);
             assert.equal(await kateToken.owner(), accounts[0]);
-    
-            const totalSupply = await kateToken.totalSupply().then(
-                res => {return fromWei(res)}
-            );
-            const decimals = await kateToken.decimals().then(
-                res => {return res.toString()}
-            );
 
             console.log('name', await kateToken.name());
             console.log('symbol', await kateToken.symbol());
-            console.log('decimals', decimals);
+            log(await kateToken.decimals());
             console.log('owner', await kateToken.owner());
-            console.log('totalSupply', totalSupply);
+            console.log('totalSupply', fromWei(await kateToken.totalSupply()));
     
-            assertBn(totalSupply, 1000000);
+            // assertBn(fromWei(await kateToken.totalSupply()), 1000000);
         })
 
         it("should give the owner 1M tokens", async () => {
@@ -123,6 +118,24 @@ contract("KateToken", (accounts) => {
                   assert.equal(allowance, 0, `Allowance of account ${accountsArray[i][1]} not zero`);
                 };
             };
+        });
+
+        it("the contract should be unpaused right after construction", async () => {
+
+            const kateToken = await deploy(accounts);
+
+            assert.equal(await kateToken.paused(), false, `the contract was paused at the construction`);
+        });
+
+        it("every address should be unfrozen right after construction/every address should be able to check that", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            for(let i=0; i<accountsArray.length; i++) {
+
+                assert.equal(await kateToken.isFrozen(accountsArray[i][1], {from: accountsArray[i][1]}), false, `the address was frozen at the construction`);
+            }
         });
     });
 
@@ -486,27 +499,176 @@ contract("KateToken", (accounts) => {
         });
     });
 
-    describe("Pausable", () => {
+    describe("Pausable/Freezable", () => {
 
-        it("", async () => {
-        
+        it("when contract is unpaused OWNER should be able to pause it", async () => {
+
+            const kateToken = await deploy(accounts);
+
+            // pause the contract
+            let pauseIT = await kateToken.mockPause({from: accounts[0]});
+
+            assert.equal(pauseIT.receipt.status, true, `the contract was NOT paused while unpaused by OWNER`);
         });
 
-        it("", async () => {
-        
+        it("when contract is paused OWNER should be able to unpause it", async () => {
+
+            const kateToken = await deploy(accounts);
+
+            // pause the contract
+            await kateToken.mockPause({from: accounts[0]});
+
+            // unpause the contract
+            unPauseIT = await kateToken.mockUnpause({from: accounts[0]});
+
+            assert.equal(unPauseIT.receipt.status, true, `the contract was NOT unpaused while paused by OWNER`);
         });
 
-        it("", async () => {
-        
+        it("when contract is unpaused it should NOT be able to unpause it again", async () => {
+
+            const kateToken = await deploy(accounts);
+           
+            // contract is unpaused, should not be able to unpause it again
+            await assertErrors(kateToken.mockUnpause(), 'Pausable: not paused');
         });
 
-        it("", async () => {
-        
+        it("when contract is paused it should NOT be able to pause it again", async () => {
+
+            const kateToken = await deploy(accounts);
+
+            // pause the contract
+            await kateToken.mockPause();
+           
+            // should not be able to pause it again
+            await assertErrors(kateToken.mockPause(), 'Pausable: paused');
         });
 
-        it("", async () => {
-        
+        it("No other account than owner should be able to pause the contract", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            console.log('is paused', await kateToken.paused());
+            
+            // check for every account exept owner's that can NOT pause the contract 
+            for(let i=1; i<accountsArray.length; i++) {
+                await assertErrors(kateToken.mockPause({from: accountsArray[i][1]}), 'Ownable: caller is not the owner'); 
+            };
         });
-    
+
+        it("No other account than owner should be able to unpause the contract", async () => {
+            
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            // pause the contract
+            await kateToken.mockPause();
+
+            console.log('is paused', await kateToken.paused());
+            
+            // check for every account exept owner's that can NOT pause the contract 
+            for(let i=1; i<accountsArray.length; i++) {
+                assert.equal(unPauseIT.receipt.status, true, `the contract was NOT unpaused while paused by OWNER`);
+            };
+        });
+
+        it("Owner should be able to freeze addresses", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+ 
+            for(let i=0; i<accountsArray.length; i++) {
+
+                let freezeAccount = await kateToken.freeze(accountsArray[i][1], { from: accountsArray[0][1]});
+
+                assert.equal(await kateToken.isFrozen(accountsArray[i][1], {from: accountsArray[i][1]}), true, `the address did NOT froze by executing freeze function`);
+
+                assert.equal(freezeAccount.receipt.status, true, `the freeze proceess was not succesful`);
+            };
+        });
+
+        it("Owner should be able to unfreeze addresses", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            // freeze all the addresses by Owner to unfreze them next
+            for(let i=0; i<accountsArray.length; i++) {
+
+                let freezeAccount = await kateToken.freeze(accountsArray[i][1], { from: accountsArray[0][1]});
+
+                assert.equal(await kateToken.isFrozen(accountsArray[i][1], {from: accountsArray[i][1]}), true, `the address did NOT froze by executing freeze function`);
+
+                assert.equal(freezeAccount.receipt.status, true, `the freeze proceess was not succesful`);
+            };
+
+            // unfreeze all the addresses by Owner
+            for(let i=0; i<accountsArray.length; i++) {
+
+                let unFreezeAccount = await kateToken.unFreeze(accountsArray[i][1], { from: accountsArray[0][1]});
+
+                assert.equal(await kateToken.isFrozen(accountsArray[i][1], {from: accountsArray[i][1]}), false, `the address did NOT unfroze by executing unFreeze function`);
+
+                assert.equal(unFreezeAccount.receipt.status, true, `the freeze proceess was not succesful`);
+            };
+        });
+
+        it("No other account than owner should be able to freeze an address", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            // for every account than owner we try to freeze account1
+            for(let i=1; i<accountsArray.length; i++) {              
+
+                await assertErrors(kateToken.freeze(accountsArray[1][1], { from: accountsArray[i][1] }), 'Ownable: caller is not the owner');
+
+                assert.equal(await kateToken.isFrozen(accountsArray[1][1]), false, `the address account1 did froze with msg.sender other than the owner`);
+            };
+        });
+
+        it("No other account than owner should be able to unfreeze an address", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            // freeze account1 to unfreeze it next
+            await kateToken.freeze(accountsArray[1][1]);
+            console.log('is account1 frozen?', await kateToken.isFrozen(accountsArray[1][1]));
+
+            // for every account than owner we try to unfreeze account1
+            for(let i=1; i<accountsArray.length; i++) {              
+
+                await assertErrors(kateToken.unFreeze(accountsArray[1][1], { from: accountsArray[i][1] }), 'Ownable: caller is not the owner');
+
+                assert.equal(await kateToken.isFrozen(accountsArray[1][1]), true, `the address account1 did unfroze with msg.sender other than the owner`);
+            };
+        });
+
+        it("an Unfrozen address should be able to call whenNotFrozen Function", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            for(let i=1; i<accountsArray.length; i++) { 
+                console.log(`is account ${i} frozen?`, await kateToken.isFrozen(accountsArray[i][1]));
+
+                assert.equal(await kateToken.toCheckWhenNotFrozenModifier(accountsArray[i][1]), true, `the unfrozen address ${accountsArray[i][0]} ${accountsArray[i][1]} did not manage to call toCheckWhenNotFrozenModifier function`);
+            }
+        });
+
+        it("a Frozen address should NOT be able to call whenNotFrozen Function", async () => {
+
+            const kateToken = await deploy(accounts);
+            const accountsArray = Object.entries(accounts);
+
+            // freeze all addreeses 
+            for(let i=1; i<accountsArray.length; i++) { 
+                await kateToken.freeze(accountsArray[i][1]);
+                console.log(`is account ${i} frozen?`, await kateToken.isFrozen(accountsArray[i][1]));
+
+                await assertErrors(kateToken.toCheckWhenNotFrozenModifier(accountsArray[i][1]), 'Freezable : target is frozen');
+            };
+        });
     });
 });
