@@ -309,4 +309,19 @@ contract("KateToken", (accounts) => {
             };
         });
     });
+
+    describe("Reentrant modifier", () => {
+
+        it("On the first call of mockReentrant Function msg.sender should enter", async () => {
+
+            const kateToken = await deploy(accounts);
+            console.log('methods', kateToken.methods);
+
+        });
+
+        it("On the second call of mockReentrant Function procces should fail", async () => {
+
+        });
+    });
+
 });

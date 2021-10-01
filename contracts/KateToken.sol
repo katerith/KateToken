@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.7;
 
-// import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/security/Pausable.sol';
@@ -19,11 +18,11 @@ contract KateToken is ERC20, Ownable, Pausable, Freezable, ReentrancyGuard {
         emit Transfer(address(0), _owner, _balances[_owner]);
     }
 
-    function _mint(uint amount) public onlyOwner nonReentrant {
+    function _mint(uint amount) public onlyOwner {
         super._mint(msg.sender, amount);
     }
 
-    function _burn(uint amount) external onlyOwner nonReentrant {
+    function _burn(uint amount) external onlyOwner {
         super._burn(msg.sender, amount);
     }
 

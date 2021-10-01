@@ -6,6 +6,7 @@ module.exports = (artifacts) => {
     
     // Project Contracts
     const KateToken = artifacts.require("KateToken");
+    const KateTokenSale = artifacts.require("KateTokenSale");
 
     // // Mocks
     // const MockToken = artifacts.require("MockToken");
@@ -161,8 +162,10 @@ module.exports = (artifacts) => {
     const PROJECT_CONSTANTS = {};
 
     const DEFAULT_CONFIGS = {
-        KateToken: ({}) => []
-
+        KateToken: ({}) => [],
+        KateTokenSale: (_, {kateToken}) => [kateToken.address]
+        // token price is 1000000000000000 in Wei, 0.001 ether
+        
 
         // FSD: ( { owner, account1 }, { timelock } ) => [owner, account1, timelock.address],
         // FairSideFormula: () => [],
@@ -218,6 +221,8 @@ module.exports = (artifacts) => {
             // await constants();
 
             const kateToken = await KateToken.new();
+            const kateTokenSale = await KateTokenSale.new(kateToken.address);
+            // token price is 1000000000000000 in Wei, 0.001 ether
             initialized = true;
         }
 
@@ -248,6 +253,7 @@ module.exports = (artifacts) => {
 
         // Project Deployments
         cached.kateToken = await KateToken.new(...configs.KateToken(accounts, cached));
+        cached.kateTokenSale = await KateTokenSale.new(...configs.KateTokenSale(accounts, cached));
 
         // cached.timelock = await Timelock.new(...configs.Timelock(accounts, cached));
         // cached.fsd = await FSD.new(...configs.FSD(accounts, cached));
