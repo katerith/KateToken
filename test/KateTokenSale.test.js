@@ -64,7 +64,7 @@ contract("KateTokenSale", (accounts) => {
             let KateTokenAddress = await kateTokenSale.kateToken();
             console.log('address', KateTokenAddress)
 
-            assert.equal(await kateTokenSale.owner(), accounts[0]);
+            assert.equal(await kateTokenSale.owner(), owner);
             assert.notEqual(kateTokenSale.address, 0x0, 'KateToken Contract was not deployed succesfully, its addresss is address(0)')
             assert.notEqual(KateTokenAddress, 0x0, 'KateTokenSale Contract address was not passed succesfully, its addresss is address(0)')
             assert.equal(await kateTokenSale.tokensPerEth(), 1000, 'price different than expected, 1000000000000000 in Wei, 0.001 ether')
@@ -77,7 +77,7 @@ contract("KateTokenSale", (accounts) => {
             await assertErrors(kateTokenSale.buyTokens({ from: buyer, value: 0 }), 'KateTokenSale: msg.value not enough to buy Tokens');
         });
 
-        it("should fail if account is buying more tokens than available in the owner's balance", async () => {
+        it("should fail if account is buying more tokens than available in the contract's balance", async () => {
 
             const kateToken = await deployKateToken(accounts);
             const kateTokenSale = await deployKateTokenSale(accounts);
@@ -89,11 +89,12 @@ contract("KateTokenSale", (accounts) => {
             console.log('buyer 1', fromWei(await kateToken.balanceOf(buyer)));
 
             // transfer to kateTokenSale contract 100 tokens from owner
-            await kateToken.transfer(kateTokenSale.address, toWei('100', {from: owner}))
+            await kateToken.transfer(kateTokenSale.address, toWei('100'), {from: owner})
 
             console.log('owner 2', fromWei(await kateToken.balanceOf(owner)));
             console.log('buyer 2', fromWei(await kateToken.balanceOf(buyer)));
 
+            // attemt to buy 101 tokens, 1 more than available in contract
             await assertErrors(kateTokenSale.buyTokens({ from: buyer, value: toWei(value) }), 'KateTokenSale: not enough tokens to buy');
         })
 
@@ -119,6 +120,7 @@ contract("KateTokenSale", (accounts) => {
             log(await kateToken.balanceOf(buyer));
             console.log('buyer eth', fromWei(await web3.eth.getBalance(buyer)))
             
+            // attemt to buy tokens with 1 ether
             let tokensBought = await kateTokenSale.buyTokens({ from: buyer, value: toWei('1') })
 
             // log(await kateTokenSale.kateTokensSold());
@@ -148,13 +150,14 @@ contract("KateTokenSale", (accounts) => {
             console.log('contract 1', fromWei(await kateToken.balanceOf(kateTokenSale.address)));
             console.log('buyer 1', fromWei(await kateToken.balanceOf(buyer)));
 
-            // transfer to kateTokenSale contract 500.000 tokens from owner
-            await kateToken.transfer(kateTokenSale.address, toWei('500000'), {from: owner})
+            // transfer to kateTokenSale contract 900.000 tokens from owner
+            await kateToken.transfer(kateTokenSale.address, toWei('900000'), {from: owner})
 
             console.log('owner 2', fromWei(await kateToken.balanceOf(accounts[0])));
             console.log('contract 2', await fromWei(await kateToken.balanceOf(kateTokenSale.address)));
             console.log('buyer 2', fromWei(await kateToken.balanceOf(buyer)));
 
+            // attemt to buy 100 tokens
             await kateTokenSale.buyTokens({ from: buyer, value: toWei(value) });
 
             console.log('owner 3', fromWei(await kateToken.balanceOf(accounts[0])));
