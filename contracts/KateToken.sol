@@ -13,16 +13,16 @@ contract KateToken is ERC20, Ownable, Pausable, Freezable, ReentrancyGuard {
     address private _owner;
 
     constructor() ERC20("KateToken", "KTN") {
-        _mint(msg.sender, 1000000*1000000000000000000);
+        mint(1_000_000 ether);
       
         emit Transfer(address(0), _owner, _balances[_owner]);
     }
 
-    function _mint(uint amount) public onlyOwner {
+    function mint(uint amount) public onlyOwner {
         super._mint(msg.sender, amount);
     }
 
-    function _burn(uint amount) external onlyOwner {
+    function burn(uint amount) external onlyOwner {
         super._burn(msg.sender, amount);
     }
 

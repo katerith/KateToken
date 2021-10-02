@@ -40,22 +40,4 @@ contract KateTokenSale is Ownable, ReentrancyGuard {
 
         return numberOfKateTokens;
     }
-    
-    // function buyTokens(uint256 _numberOfKateTokens) public payable returns (uint256) {
-    //     require(msg.value == _numberOfKateTokens * kateTokenPrice, "KateTokenSale: msg.value is not the expected according to tokenPrice");
-        
-    //     require( kateToken._approve(owner(), msg.sender, _numberOfKateTokens), "KateTokenSale: token approval from owner to msg.sender NOT succesful");
-    //     require( kateToken.transferFrom(owner(), msg.sender, _numberOfKateTokens), "KateTokenSale: transfer of tokens Not succesful");
-
-    //     uint256 balance = kateToken.balanceOf(owner());
-    //     require( balance >= _numberOfKateTokens, "KateTokenSale: not enough tokens to buy");
-
-    //     (bool success) = kateToken.transfer(msg.sender, _numberOfKateTokens);
-    //     require(success, "KateTokenSale: transfer of tokens Not succesful");
-
-    //     kateTokensSold += _numberOfKateTokens;
-
-    //     emit Sell(msg.sender, _numberOfKateTokens);
-    //     return _numberOfKateTokens;
-    // }
 }

@@ -8,18 +8,6 @@ module.exports = (artifacts) => {
     const KateToken = artifacts.require("KateToken");
     const KateTokenSale = artifacts.require("KateTokenSale");
 
-    // // Mocks
-    // const MockToken = artifacts.require("MockToken");
-    // const MockConstants = artifacts.require("MockConstants");
-
-    // // Project Contracts
-    // const FSD = artifacts.require("FSD");
-    // const FairSideFormula = artifacts.require("FairSideFormula");
-    // const FairSideConviction = artifacts.require("FairSideConviction");
-    // const FSDNetwork = artifacts.require("FSDNetwork");
-    // const FairSideDao = artifacts.require("FairSideDAO");
-    // const Timelock = artifacts.require("Timelock");
-
     // Libraries
 
     // Generic Utilities
@@ -27,6 +15,7 @@ module.exports = (artifacts) => {
     const fromWei = n => web3.utils.fromWei(n, 'ether');
 
     const toWei = n => web3.utils.toWei(n, 'ether');
+    // const toWei = n => parseUnits(n, 18);
 
     const big = (n) => web3.utils.toBN(n);
 
@@ -164,50 +153,17 @@ module.exports = (artifacts) => {
     const DEFAULT_CONFIGS = {
         KateToken: ({}) => [],
         KateTokenSale: (_, {kateToken}) => [kateToken.address]
-        // token price is 1000000000000000 in Wei, 0.001 ether
-        
-
-        // FSD: ( { owner, account1 }, { timelock } ) => [owner, account1, timelock.address],
-        // FairSideFormula: () => [],
-        // Timelock: ( {owner}) => [owner, 5*24*60*360],
-        // FairSideDao: ( { owner }, { timelock, fsd } ) => [timelock.address, fsd.address, owner],
-        // FairSideConviction: (_, { fsd }) => [fsd.address],
-        // FSDNetwork: ( { account2 }, {fsd, fairSideDao, timelock}) => [fsd.address, account2, fairSideDao.address, timelock.address],
     };
 
     // Project Utilities
 
-
     let initialized;
     let cached;
-
-    // Used to Link Libraries
-    // const link = async () => {
-        
-    //     const fooLibrary = await FooLibrary.new();
-    //     await FooBar.link("FooLibrary", fooLibrary.address);
-    //     const fairSideFormula = await FairSideFormula.new();
-    //     await FSDNetwork.link("FairSideFormula", fairSideFormula.address);
-    //     await FSD.link("FairSideFormula", fairSideFormula.address);
-    // };
-
-    // Used to retrieve project constants
-    // const constants = async () => {
-    //     const protocolConstants = await ProtocolConstants.new();
-    //     const getters = Object.keys(protocolConstants).filter(
-    //         (n) => n.toUpperCase() === n
-    //     );
-
-    //     for (let i = 0; i < getters.length; i++)
-    //         PROJECT_CONSTANTS[getters[i]] = await protocolConstants[getters[i]]();
-    // };
 
     const deployMock = async (accounts, configs) => {
 
         configs = { ...DEFAULT_CONFIGS, ...configs };
-        // console.log('accounts deployMock', accounts)
         if (accounts === undefined) {
-            // console.log('cached 1', cached)
             if (cached) return cached;
             
             else {
@@ -217,51 +173,17 @@ module.exports = (artifacts) => {
         }
 
         if (!initialized) {
-            // await link();
-            // await constants();
-
             const kateToken = await KateToken.new();
             const kateTokenSale = await KateTokenSale.new(kateToken.address);
-            // token price is 1000000000000000 in Wei, 0.001 ether
             initialized = true;
         }
 
         cached = {};
 
-        // cached.ADMINISTRATOR = {
-        //     from: accounts.administrator,
-        //     gasPrice: big(0),
-        // };
-
-        // cached.VESTER = {
-        //     from: accounts.owner,
-        //     gasPrice: big(0),
-        // };
-
-        // cached.KATETOKEN = {
-        //     from: accounts.owner,
-        //     gasPrice: big(0),
-        // };
-
-        // cached.FAKE_DAO = {
-        //     from: accounts.dao,
-        //     gasPrice: big(0),
-        // };
-
-        // Mock Deployments
-       
-
         // Project Deployments
         cached.kateToken = await KateToken.new(...configs.KateToken(accounts, cached));
         cached.kateTokenSale = await KateTokenSale.new(...configs.KateTokenSale(accounts, cached));
 
-        // cached.timelock = await Timelock.new(...configs.Timelock(accounts, cached));
-        // cached.fsd = await FSD.new(...configs.FSD(accounts, cached));
-        // cached.fairSideDao = await FairSideDao.new(...configs.FairSideDao(accounts, cached));
-        // cached.fairSideConviction = await FairSideConviction.new(...configs.FairSideConviction(accounts, cached));
-        // cached.fsdNetwork = await FSDNetwork.new(...configs.FSDNetwork(accounts, cached));
-
-        // console.log('cached 2', cached)
         return cached;
     };
 
@@ -291,6 +213,5 @@ module.exports = (artifacts) => {
         DEFAULT_CONFIGS,
 
         // Project Specific Utilities
-
     };
 };

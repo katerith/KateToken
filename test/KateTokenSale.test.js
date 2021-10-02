@@ -25,144 +25,117 @@ const {
 } = require("./utils")(artifacts);
   
   
-const { web3 } = require("@openzeppelin/test-helpers/src/setup");
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 
 
-contract("KateTokenSale", (accounts) => {
-
-    const deployKateTokenSale = async (accounts) => {
-        if (Array.isArray(accounts)) 
-            accounts = await verboseAccounts(accounts);     
-        const { kateTokenSale } = await deployMock(accounts);
-        // console.log("kateToken", kateToken.methods)
-        return kateTokenSale;
-    }
-
-    const deployKateToken = async (accounts) => {
-        if (Array.isArray(accounts)) 
-            accounts = await verboseAccounts(accounts);     
-        const { kateToken } = await deployMock(accounts);
-        // console.log("kateToken", kateToken.methods)
-        return kateToken;
-    }
+contract('KateTokenSale', (accounts) => {
 
     const tokensPerEth = 1000; // token price for 1 ETH
-    const buyer = accounts[1];
-    const owner = accounts[0];
+    const totalSupply = '1000000';
 
-    describe("Construction", () => {
+    describe('Construction', () => {
 
-        it("should pass addresses and match owner/kateTokens per ether succesfully", async () => {
+        it('should pass addresses and match owner/kateTokens per ether succesfully', async () => {
 
-            const kateTokenSale = await deployKateTokenSale(accounts);
-            console.log('methods', kateTokenSale.methods);
-
-            console.log('kateTokenSale.address', kateTokenSale.address);
-            console.log('OWNER', await kateTokenSale.owner());
-            console.log('accounts[0]', accounts[0]);
+            if (Array.isArray(accounts)) 
+                accounts = await verboseAccounts(accounts);     
+            const { kateTokenSale } = await deployMock(accounts);
 
             let KateTokenAddress = await kateTokenSale.kateToken();
-            console.log('address', KateTokenAddress)
 
-            assert.equal(await kateTokenSale.owner(), owner);
-            assert.notEqual(kateTokenSale.address, 0x0, 'KateToken Contract was not deployed succesfully, its addresss is address(0)')
-            assert.notEqual(KateTokenAddress, 0x0, 'KateTokenSale Contract address was not passed succesfully, its addresss is address(0)')
-            assert.equal(await kateTokenSale.tokensPerEth(), 1000, 'price different than expected, 1000000000000000 in Wei, 0.001 ether')
+            assert.equal(await kateTokenSale.owner(), accounts.owner);
+            assert.notEqual(kateTokenSale.address, 0x0, 'KateToken Contract was not deployed succesfully, its addresss is address(0)');
+            assert.notEqual(KateTokenAddress, 0x0, 'KateTokenSale Contract address was not passed succesfully, its addresss is address(0)');
+            assert.equal(await kateTokenSale.tokensPerEth(), 1000, 'price different than expected, 1000000000000000 in Wei, 0.001 ether');
         });
+    });
 
-        it("should fail if msg.value is zero", async () => {
+    describe('Buying tokens process', () => {
 
-            const kateTokenSale = await deployKateTokenSale(accounts);
+        it('should fail if msg.value is zero', async () => {
+
+            if (Array.isArray(accounts)) 
+                accounts = await verboseAccounts(accounts);     
+            const { kateToken, kateTokenSale } = await deployMock(accounts);
+
+            // transfer to the kateTokenSale contract 900.000/1.000.000(totalSupply) tokens from owner
+            await kateToken.approve.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.increaseAllowance.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.transferFrom(accounts.owner, kateTokenSale.address, toWei('900000'), {from: accounts.owner});
         
-            await assertErrors(kateTokenSale.buyTokens({ from: buyer, value: 0 }), 'KateTokenSale: msg.value not enough to buy Tokens');
+            await assertErrors(kateTokenSale.buyTokens({ from: accounts.account1, value: 0 }), 'KateTokenSale: msg.value not enough to buy Tokens');
         });
 
-        it("should fail if account is buying more tokens than available in the contract's balance", async () => {
+        it('should fail if account is buying more tokens than available in the contract"s balance', async () => {
 
-            const kateToken = await deployKateToken(accounts);
-            const kateTokenSale = await deployKateTokenSale(accounts);
+            if (Array.isArray(accounts)) 
+                accounts = await verboseAccounts(accounts);     
+            const { kateToken, kateTokenSale } = await deployMock(accounts);
+
             let numberOfTokens = '101';
             value = (numberOfTokens/tokensPerEth).toString();
-            console.log(value, typeof(value));
 
-            console.log('owner 1', fromWei(await kateToken.balanceOf(owner)));
-            console.log('buyer 1', fromWei(await kateToken.balanceOf(buyer)));
-
-            // transfer to kateTokenSale contract 100 tokens from owner
-            await kateToken.transfer(kateTokenSale.address, toWei('100'), {from: owner})
-
-            console.log('owner 2', fromWei(await kateToken.balanceOf(owner)));
-            console.log('buyer 2', fromWei(await kateToken.balanceOf(buyer)));
+            // transfer to the kateTokenSale contract 100/1.000.000(totalSupply) tokens from owner
+            await kateToken.approve.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.increaseAllowance.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.transferFrom(accounts.owner, kateTokenSale.address, toWei('100'), {from: accounts.owner});
 
             // attemt to buy 101 tokens, 1 more than available in contract
-            await assertErrors(kateTokenSale.buyTokens({ from: buyer, value: toWei(value) }), 'KateTokenSale: not enough tokens to buy');
+            await assertErrors(kateTokenSale.buyTokens({ from: accounts.account1, value: toWei(value) }), 'KateTokenSale: not enough tokens to buy');
         })
 
-        // problem
-        it("selling tokens with success/emit Sell event/track tokensSoldand buyer-owner balances", async () => {
+        it('selling tokens with success/emit Sell event/track tokensSold and buyer-owner balances', async () => {
 
-            const kateToken = await deployKateToken(accounts);
-            const kateTokenSale = await deployKateTokenSale(accounts);
+            if (Array.isArray(accounts)) 
+                accounts = await verboseAccounts(accounts);     
+            const { kateToken, kateTokenSale } = await deployMock(accounts);
 
-            log(await kateTokenSale.kateTokensSold());
-            log(await kateToken.balanceOf(owner));
-            log(await kateToken.balanceOf(kateTokenSale.address));
-            log(await kateToken.balanceOf(buyer));
-
-            // transfer to the kateTokenSale contract 900.000/1.000.000 tokens from owner
-            let contractTransfer = await kateToken.transfer(kateTokenSale.address, toWei('900000'), {from: owner});
-
-            console.log('transfer', contractTransfer);
-
-            log(await kateTokenSale.kateTokensSold());
-            log(await kateToken.balanceOf(owner));
-            log(await kateToken.balanceOf(kateTokenSale.address));
-            log(await kateToken.balanceOf(buyer));
-            console.log('buyer eth', fromWei(await web3.eth.getBalance(buyer)))
-            
-            // attemt to buy tokens with 1 ether
-            let tokensBought = await kateTokenSale.buyTokens({ from: buyer, value: toWei('1') })
-
-            // log(await kateTokenSale.kateTokensSold());
-            // log(await kateToken.balanceOf(owner));
-            // log(await kateToken.balanceOf(kateTokenSale.address));
-            // log(await kateToken.balanceOf(buyer));
-
-            // console.log('tokensBought', tokensBought)
-            
-            // sell event
-            // assertEvents(tokensBought.logs, kateTokenSale.Sell);
-            // assert.equal(tokensBought.logs.length, 1, "event not unique");
-            // assert.equal(tokensBought.logs[0].args._buyer, buyer, "buyer was not the expected");
-            // assert.equal(tokensBought.logs[0].args._amount, numberOfTokens, "number of tokens bought are not 10");
-        });
-
-        // problem
-        it("should transfer to the buyer the amount of tokens bought", async () => {
-
-            const kateToken = await deployKateToken(accounts);
-            const kateTokenSale = await deployKateTokenSale(accounts);
             let numberOfTokens = '100';
             value = (numberOfTokens/tokensPerEth).toString();
-            console.log(value, typeof(value));
 
-            console.log('owner 1', fromWei(await kateToken.balanceOf(owner)));
-            console.log('contract 1', fromWei(await kateToken.balanceOf(kateTokenSale.address)));
-            console.log('buyer 1', fromWei(await kateToken.balanceOf(buyer)));
+            // initial owner's balance, should be totalSupply
+            let ownerBalance_Before = fromWei(await kateToken.balanceOf(accounts.owner))
+            // initial contract balance, should be zero
+            let contractBalance_0 = fromWei(await kateToken.balanceOf(kateTokenSale.address))
 
-            // transfer to kateTokenSale contract 900.000 tokens from owner
-            await kateToken.transfer(kateTokenSale.address, toWei('900000'), {from: owner})
+            // transfer to the kateTokenSale contract 900.000/1.000.000(totalSupply) tokens from owner
+            await kateToken.approve.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.increaseAllowance.sendTransaction(accounts.owner, toWei(totalSupply), { from: accounts.owner });
+            await kateToken.transferFrom(accounts.owner, kateTokenSale.address, toWei('900000'), {from: accounts.owner});
 
-            console.log('owner 2', fromWei(await kateToken.balanceOf(accounts[0])));
-            console.log('contract 2', await fromWei(await kateToken.balanceOf(kateTokenSale.address)));
-            console.log('buyer 2', fromWei(await kateToken.balanceOf(buyer)));
+            // owner's balance after transfering 900000 tokens to the contract
+            let ownerBalance_After = fromWei(await kateToken.balanceOf(accounts.owner));
+            // contract balance, after transfering 900000 tokens
+            let contractBalance_1 = fromWei(await kateToken.balanceOf(kateTokenSale.address));
+            // tokensSold before buying, should be zero
+            let tokenSold_Before = fromWei(await kateTokenSale.kateTokensSold());
+            // buyer's before buying, should be zero
+            let buyersBalance_Before = fromWei(await kateToken.balanceOf(accounts.account1));
 
-            // attemt to buy 100 tokens
-            await kateTokenSale.buyTokens({ from: buyer, value: toWei(value) });
+            // attemt to buy tokens with 1 ether
+            let tokensBought = await kateTokenSale.buyTokens({ from: accounts.account1, value: toWei(value) });
 
-            console.log('owner 3', fromWei(await kateToken.balanceOf(accounts[0])));
-            console.log('contract 3', await fromWei(await kateToken.balanceOf(kateTokenSale.address)));
-            console.log('buyer 3', fromWei(await kateToken.balanceOf(buyer)));
+            // contract balance, after buying tokens with 1 eth
+            let contractBalance_2 = fromWei(await kateToken.balanceOf(kateTokenSale.address));
+            // tokensSold after buying
+            let tokenSold_After = fromWei(await kateTokenSale.kateTokensSold());
+            // buyer's after buying
+            let buyersBalance_After = fromWei(await kateToken.balanceOf(accounts.account1));
+
+
+            // token tracking
+            assert.equal(tokenSold_Before, tokenSold_After - numberOfTokens, 'tokens Sold did not increased according to the amount bought');
+            assert.equal(ownerBalance_Before, parseInt(ownerBalance_After) + 900000, 'ownerBalance did not decreased according to the transfering amount');
+            assert.equal(contractBalance_0, parseInt(contractBalance_1) - 900000, 'contract balance did not increased according to the transfering amount');
+            assert.equal(contractBalance_1, parseInt(contractBalance_2) + parseInt(numberOfTokens), 'tokens Sold did not decreased according to the amount bought');
+            assert.equal(buyersBalance_Before, parseInt(buyersBalance_After) - parseInt(numberOfTokens), 'ontract balance did not increased according to the amount bought')
+            
+            // sell event
+            assertEvents(tokensBought.logs, kateTokenSale.Sell);
+            assert.equal(tokensBought.logs.length, 1, 'event not unique');
+            assert.equal(tokensBought.logs[0].args._buyer, accounts.account1, 'buyer was not the expected');
+            assertBn(tokensBought.logs[0].args._tokenAmount, toWei(numberOfTokens))
+            assertBn(tokensBought.logs[0].args._ethAmount, toWei(value))
         });
     });
 });
