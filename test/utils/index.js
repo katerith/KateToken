@@ -116,8 +116,8 @@ module.exports = (artifacts) => {
         const verboseAccounts = [
             "owner",
             "account1",
-            "account2",
-            "account3",
+            "developmentFund",
+            "companyFund",
             "account4",
             "account5"          
         ];
@@ -152,7 +152,7 @@ module.exports = (artifacts) => {
 
     const DEFAULT_CONFIGS = {
         KateToken: ({}) => [],
-        KateTokenSale: (_, {kateToken}) => [kateToken.address]
+        KateTokenSale: ( { developmentFund, companyFund }, { kateToken } ) => [kateToken.address, developmentFund, companyFund]
     };
 
     // Project Utilities
@@ -174,7 +174,7 @@ module.exports = (artifacts) => {
 
         if (!initialized) {
             const kateToken = await KateToken.new();
-            const kateTokenSale = await KateTokenSale.new(kateToken.address);
+            const kateTokenSale = await KateTokenSale.new(kateToken.address, accounts.developmentFund, accounts.companyFund);
             initialized = true;
         }
 
